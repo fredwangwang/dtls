@@ -26,12 +26,14 @@ func (m MessageCertificateVerify) Type() Type {
 
 // Marshal encodes the Handshake
 func (m *MessageCertificateVerify) Marshal() ([]byte, error) {
-	out := make([]byte, 1+1+2+len(m.Signature))
+	// dtls1 (tls1.1) hardcode rsa with md5sha1, so the message does not need/support sig,hash fields
 
-	out[0] = byte(m.HashAlgorithm)
-	out[1] = byte(m.SignatureAlgorithm)
-	binary.BigEndian.PutUint16(out[2:], uint16(len(m.Signature)))
-	copy(out[4:], m.Signature)
+	out := make([]byte, 2+len(m.Signature))
+
+	// out[0] = byte(m.HashAlgorithm)
+	// out[1] = byte(m.SignatureAlgorithm)
+	binary.BigEndian.PutUint16(out, uint16(len(m.Signature)))
+	copy(out[2:], m.Signature)
 	return out, nil
 }
 
@@ -41,21 +43,22 @@ func (m *MessageCertificateVerify) Unmarshal(data []byte) error {
 		return errBufferTooSmall
 	}
 
-	m.HashAlgorithm = hash.Algorithm(data[0])
-	if _, ok := hash.Algorithms()[m.HashAlgorithm]; !ok {
-		return errInvalidHashAlgorithm
-	}
+	// m.HashAlgorithm = hash.Algorithm(data[0])
+	// if _, ok := hash.Algorithms()[m.HashAlgorithm]; !ok {
+	// 	return errInvalidHashAlgorithm
+	// }
 
-	m.SignatureAlgorithm = signature.Algorithm(data[1])
-	if _, ok := signature.Algorithms()[m.SignatureAlgorithm]; !ok {
-		return errInvalidSignatureAlgorithm
-	}
+	// m.SignatureAlgorithm = signature.Algorithm(data[1])
+	// if _, ok := signature.Algorithms()[m.SignatureAlgorithm]; !ok {
+	// 	return errInvalidSignatureAlgorithm
+	// }
 
-	signatureLength := int(binary.BigEndian.Uint16(data[2:]))
-	if (signatureLength + 4) != len(data) {
+	signatureLength := int(binary.BigEndian.Uint16(data))
+	if (signatureLength + 2) != len(data) {
 		return errBufferTooSmall
 	}
-
-	m.Signature = append([]byte{}, data[4:]...)
+	m.HashAlgorithm = hash.MD5SHA1
+	m.SignatureAlgorithm = signature.RSA
+	m.Signature = append([]byte{}, data[2:]...)
 	return nil
 }

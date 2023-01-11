@@ -45,18 +45,20 @@ func (m *MessageServerKeyExchange) Marshal() ([]byte, error) {
 
 	out = append(out, byte(len(m.PublicKey)))
 	out = append(out, m.PublicKey...)
-	switch {
-	case m.HashAlgorithm != hash.None && len(m.Signature) == 0:
-		return nil, errInvalidHashAlgorithm
-	case m.HashAlgorithm == hash.None && len(m.Signature) > 0:
-		return nil, errInvalidHashAlgorithm
-	case m.SignatureAlgorithm == signature.Anonymous && (m.HashAlgorithm != hash.None || len(m.Signature) > 0):
-		return nil, errInvalidSignatureAlgorithm
-	case m.SignatureAlgorithm == signature.Anonymous:
-		return out, nil
-	}
 
-	out = append(out, []byte{byte(m.HashAlgorithm), byte(m.SignatureAlgorithm), 0x00, 0x00}...)
+	// switch {
+	// case m.HashAlgorithm != hash.None && len(m.Signature) == 0:
+	// 	return nil, errInvalidHashAlgorithm
+	// case m.HashAlgorithm == hash.None && len(m.Signature) > 0:
+	// 	return nil, errInvalidHashAlgorithm
+	// case m.SignatureAlgorithm == signature.Anonymous && (m.HashAlgorithm != hash.None || len(m.Signature) > 0):
+	// 	return nil, errInvalidSignatureAlgorithm
+	// case m.SignatureAlgorithm == signature.Anonymous:
+	// 	return out, nil
+	// }
+	// out = append(out, []byte{byte(m.HashAlgorithm), byte(m.SignatureAlgorithm), 0x00, 0x00}...)
+
+	out = append(out, []byte{0x00, 0x00}...)
 	binary.BigEndian.PutUint16(out[len(out)-2:], uint16(len(m.Signature)))
 	out = append(out, m.Signature...)
 
@@ -113,28 +115,35 @@ func (m *MessageServerKeyExchange) Unmarshal(data []byte) error {
 	m.PublicKey = append([]byte{}, data[4:offset]...)
 
 	// Anon connection doesn't contains hashAlgorithm, signatureAlgorithm, signature
-	if len(data) == offset {
-		return nil
-	} else if len(data) <= offset {
-		return errBufferTooSmall
+	// dtls1 (tls1.1) hardcode rsa with md5sha1, so the message does not need/support sig,hash fields
+	if false {
+		if len(data) == offset {
+			return nil
+		} else if len(data) <= offset {
+			return errBufferTooSmall
+		}
+
+		m.HashAlgorithm = hash.Algorithm(data[offset])
+		if _, ok := hash.Algorithms()[m.HashAlgorithm]; !ok {
+			return errInvalidHashAlgorithm
+		}
+		offset++
+		if len(data) <= offset {
+			return errBufferTooSmall
+		}
+		m.SignatureAlgorithm = signature.Algorithm(data[offset])
+		if _, ok := signature.Algorithms()[m.SignatureAlgorithm]; !ok {
+			return errInvalidSignatureAlgorithm
+		}
+		offset++
+		if len(data) < offset+2 {
+			return errBufferTooSmall
+		}
+	} else {
+		m.SignatureAlgorithm = signature.RSA
+		m.HashAlgorithm = hash.MD5SHA1
 	}
 
-	m.HashAlgorithm = hash.Algorithm(data[offset])
-	if _, ok := hash.Algorithms()[m.HashAlgorithm]; !ok {
-		return errInvalidHashAlgorithm
-	}
-	offset++
-	if len(data) <= offset {
-		return errBufferTooSmall
-	}
-	m.SignatureAlgorithm = signature.Algorithm(data[offset])
-	if _, ok := signature.Algorithms()[m.SignatureAlgorithm]; !ok {
-		return errInvalidSignatureAlgorithm
-	}
-	offset++
-	if len(data) < offset+2 {
-		return errBufferTooSmall
-	}
 	signatureLength := int(binary.BigEndian.Uint16(data[offset:]))
 	offset += 2
 	if len(data) < offset+signatureLength {

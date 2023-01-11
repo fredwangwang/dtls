@@ -8,7 +8,9 @@ import (
 	"github.com/pion/dtls/v2/internal/ciphersuite"
 	"github.com/pion/dtls/v2/pkg/crypto/clientcertificate"
 	"github.com/pion/dtls/v2/pkg/crypto/elliptic"
+	"github.com/pion/dtls/v2/pkg/crypto/hash"
 	"github.com/pion/dtls/v2/pkg/crypto/prf"
+	"github.com/pion/dtls/v2/pkg/crypto/signature"
 	"github.com/pion/dtls/v2/pkg/crypto/signaturehash"
 	"github.com/pion/dtls/v2/pkg/protocol"
 	"github.com/pion/dtls/v2/pkg/protocol/alert"
@@ -260,11 +262,11 @@ func flight4Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 	pkts = append(pkts, &packet{
 		record: &recordlayer.RecordLayer{
 			Header: recordlayer.Header{
-				Version: protocol.Version1_2,
+				Version: protocol.Version1_0,
 			},
 			Content: &handshake.Handshake{
 				Message: &handshake.MessageServerHello{
-					Version:           protocol.Version1_2,
+					Version:           protocol.Version1_0,
 					Random:            state.localRandom,
 					SessionID:         state.SessionID,
 					CipherSuiteID:     &cipherSuiteID,
@@ -288,7 +290,7 @@ func flight4Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 		pkts = append(pkts, &packet{
 			record: &recordlayer.RecordLayer{
 				Header: recordlayer.Header{
-					Version: protocol.Version1_2,
+					Version: protocol.Version1_0,
 				},
 				Content: &handshake.Handshake{
 					Message: &handshake.MessageCertificate{
@@ -302,10 +304,13 @@ func flight4Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 		clientRandom := state.remoteRandom.MarshalFixed()
 
 		// Find compatible signature scheme
-		signatureHashAlgo, err := signaturehash.SelectSignatureScheme(cfg.localSignatureSchemes, certificate.PrivateKey)
-		if err != nil {
-			return nil, &alert.Alert{Level: alert.Fatal, Description: alert.InsufficientSecurity}, err
-		}
+		// signatureHashAlgo, err := signaturehash.SelectSignatureScheme(cfg.localSignatureSchemes, privateKey)
+		// if err != nil {
+		// 	return nil, &alert.Alert{Level: alert.Fatal, Description: alert.InsufficientSecurity}, err
+		// }
+
+		// dtls1 (tls1.1) hardcode rsa with md5sha1
+		signatureHashAlgo := signaturehash.Algorithm{Hash: hash.MD5SHA1, Signature: signature.RSA}
 
 		signature, err := generateKeySignature(clientRandom[:], serverRandom[:], state.localKeypair.PublicKey, state.namedCurve, certificate.PrivateKey, signatureHashAlgo.Hash)
 		if err != nil {
@@ -316,7 +321,7 @@ func flight4Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 		pkts = append(pkts, &packet{
 			record: &recordlayer.RecordLayer{
 				Header: recordlayer.Header{
-					Version: protocol.Version1_2,
+					Version: protocol.Version1_0,
 				},
 				Content: &handshake.Handshake{
 					Message: &handshake.MessageServerKeyExchange{
@@ -345,7 +350,7 @@ func flight4Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 			pkts = append(pkts, &packet{
 				record: &recordlayer.RecordLayer{
 					Header: recordlayer.Header{
-						Version: protocol.Version1_2,
+						Version: protocol.Version1_0,
 					},
 					Content: &handshake.Handshake{
 						Message: &handshake.MessageCertificateRequest{
@@ -375,7 +380,7 @@ func flight4Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 		pkts = append(pkts, &packet{
 			record: &recordlayer.RecordLayer{
 				Header: recordlayer.Header{
-					Version: protocol.Version1_2,
+					Version: protocol.Version1_0,
 				},
 				Content: &handshake.Handshake{
 					Message: srvExchange,
@@ -387,7 +392,7 @@ func flight4Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 	pkts = append(pkts, &packet{
 		record: &recordlayer.RecordLayer{
 			Header: recordlayer.Header{
-				Version: protocol.Version1_2,
+				Version: protocol.Version1_0,
 			},
 			Content: &handshake.Handshake{
 				Message: &handshake.MessageServerHelloDone{},

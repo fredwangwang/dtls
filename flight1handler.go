@@ -119,11 +119,11 @@ func flight1Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 		{
 			record: &recordlayer.RecordLayer{
 				Header: recordlayer.Header{
-					Version: protocol.Version1_2,
+					Version: protocol.Version1_0,
 				},
 				Content: &handshake.Handshake{
 					Message: &handshake.MessageClientHello{
-						Version:            protocol.Version1_2,
+						Version:            protocol.Version1_0,
 						SessionID:          state.SessionID,
 						Cookie:             state.cookie,
 						Random:             state.localRandom,

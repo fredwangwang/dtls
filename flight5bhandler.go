@@ -34,7 +34,7 @@ func flight5bGenerate(c flightConn, state *State, cache *handshakeCache, cfg *ha
 		&packet{
 			record: &recordlayer.RecordLayer{
 				Header: recordlayer.Header{
-					Version: protocol.Version1_2,
+					Version: protocol.Version1_0,
 				},
 				Content: &protocol.ChangeCipherSpec{},
 			},
@@ -58,7 +58,7 @@ func flight5bGenerate(c flightConn, state *State, cache *handshakeCache, cfg *ha
 		&packet{
 			record: &recordlayer.RecordLayer{
 				Header: recordlayer.Header{
-					Version: protocol.Version1_2,
+					Version: protocol.Version1_0,
 					Epoch:   1,
 				},
 				Content: &handshake.Handshake{

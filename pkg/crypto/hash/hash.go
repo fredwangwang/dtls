@@ -23,6 +23,7 @@ const (
 	SHA384  Algorithm = 5
 	SHA512  Algorithm = 6
 	Ed25519 Algorithm = 8
+	MD5SHA1 Algorithm = 255
 )
 
 // String makes hashAlgorithm printable
@@ -44,6 +45,8 @@ func (a Algorithm) String() string {
 		return "sha-512" // [RFC4055]
 	case Ed25519:
 		return "null"
+	case MD5SHA1:
+		return "md5sha1"
 	default:
 		return "unknown or unsupported hash algorithm"
 	}
@@ -72,6 +75,8 @@ func (a Algorithm) Digest(b []byte) []byte {
 	case SHA512:
 		hash := sha512.Sum512(b)
 		return hash[:]
+	case MD5SHA1:
+		return md5SHA1Hash([][]byte{b})
 	default:
 		return nil
 	}
@@ -106,6 +111,8 @@ func (a Algorithm) CryptoHash() crypto.Hash {
 		return crypto.SHA512
 	case Ed25519:
 		return crypto.Hash(0)
+	case MD5SHA1:
+		return crypto.MD5SHA1
 	default:
 		return crypto.Hash(0)
 	}
@@ -123,4 +130,30 @@ func Algorithms() map[Algorithm]struct{} {
 		SHA512:  {},
 		Ed25519: {},
 	}
+}
+
+// Copyright 2010 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// sha1Hash calculates a SHA1 hash over the given byte slices.
+func sha1Hash(slices [][]byte) []byte {
+	hsha1 := sha1.New()
+	for _, slice := range slices {
+		hsha1.Write(slice)
+	}
+	return hsha1.Sum(nil)
+}
+
+// md5SHA1Hash implements TLS 1.0's hybrid hash function which consists of the
+// concatenation of an MD5 and SHA1 hash.
+func md5SHA1Hash(slices [][]byte) []byte {
+	md5sha1 := make([]byte, md5.Size+sha1.Size)
+	hmd5 := md5.New()
+	for _, slice := range slices {
+		hmd5.Write(slice)
+	}
+	copy(md5sha1, hmd5.Sum(nil))
+	copy(md5sha1[md5.Size:], sha1Hash(slices))
+	return md5sha1
 }

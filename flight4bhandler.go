@@ -76,7 +76,7 @@ func flight4bGenerate(c flightConn, state *State, cache *handshakeCache, cfg *ha
 	cipherSuiteID := uint16(state.cipherSuite.ID())
 	serverHello := &handshake.Handshake{
 		Message: &handshake.MessageServerHello{
-			Version:           protocol.Version1_2,
+			Version:           protocol.Version1_0,
 			Random:            state.localRandom,
 			SessionID:         state.SessionID,
 			CipherSuiteID:     &cipherSuiteID,
@@ -107,7 +107,7 @@ func flight4bGenerate(c flightConn, state *State, cache *handshakeCache, cfg *ha
 		&packet{
 			record: &recordlayer.RecordLayer{
 				Header: recordlayer.Header{
-					Version: protocol.Version1_2,
+					Version: protocol.Version1_0,
 				},
 				Content: serverHello,
 			},
@@ -115,7 +115,7 @@ func flight4bGenerate(c flightConn, state *State, cache *handshakeCache, cfg *ha
 		&packet{
 			record: &recordlayer.RecordLayer{
 				Header: recordlayer.Header{
-					Version: protocol.Version1_2,
+					Version: protocol.Version1_0,
 				},
 				Content: &protocol.ChangeCipherSpec{},
 			},
@@ -123,7 +123,7 @@ func flight4bGenerate(c flightConn, state *State, cache *handshakeCache, cfg *ha
 		&packet{
 			record: &recordlayer.RecordLayer{
 				Header: recordlayer.Header{
-					Version: protocol.Version1_2,
+					Version: protocol.Version1_0,
 					Epoch:   1,
 				},
 				Content: &handshake.Handshake{

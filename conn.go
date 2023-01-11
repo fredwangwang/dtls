@@ -342,7 +342,7 @@ func (c *Conn) Write(p []byte) (int, error) {
 			record: &recordlayer.RecordLayer{
 				Header: recordlayer.Header{
 					Epoch:   c.state.getLocalEpoch(),
-					Version: protocol.Version1_2,
+					Version: protocol.Version1_0,
 				},
 				Content: &protocol.ApplicationData{
 					Data: p,
@@ -794,7 +794,7 @@ func (c *Conn) notify(ctx context.Context, level alert.Level, desc alert.Descrip
 			record: &recordlayer.RecordLayer{
 				Header: recordlayer.Header{
 					Epoch:   c.state.getLocalEpoch(),
-					Version: protocol.Version1_2,
+					Version: protocol.Version1_0,
 				},
 				Content: &alert.Alert{
 					Level:       level,

@@ -1,3 +1,5 @@
+Forked DTLS library, modified to work (only) with [DTLS 1][https://www.rfc-editor.org/rfc/rfc4347] 
+
 <h1 align="center">
   <br>
   Pion DTLS

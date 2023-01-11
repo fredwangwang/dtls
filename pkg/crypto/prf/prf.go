@@ -4,6 +4,7 @@ package prf
 import ( //nolint:gci
 	ellipticStdlib "crypto/elliptic"
 	"crypto/hmac"
+	"crypto/tls"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -16,11 +17,11 @@ import ( //nolint:gci
 )
 
 const (
-	masterSecretLabel         = "master secret"
+	// masterSecretLabel         = "master secret"
 	extendedMasterSecretLabel = "extended master secret"
-	keyExpansionLabel         = "key expansion"
-	verifyDataClientLabel     = "client finished"
-	verifyDataServerLabel     = "server finished"
+	// keyExpansionLabel         = "key expansion"
+	verifyDataClientLabel = "client finished"
+	verifyDataServerLabel = "server finished"
 )
 
 // HashFunc allows callers to decide what hash is used in PRF
@@ -135,14 +136,14 @@ func ellipticCurvePreMasterSecret(publicKey, privateKey []byte, c1, c2 ellipticS
 // specify a PRF and, in general, SHOULD use the TLS PRF with SHA-256 or a
 // stronger standard hash function.
 //
-//    P_hash(secret, seed) = HMAC_hash(secret, A(1) + seed) +
-//                           HMAC_hash(secret, A(2) + seed) +
-//                           HMAC_hash(secret, A(3) + seed) + ...
+//	P_hash(secret, seed) = HMAC_hash(secret, A(1) + seed) +
+//	                       HMAC_hash(secret, A(2) + seed) +
+//	                       HMAC_hash(secret, A(3) + seed) + ...
 //
 // A() is defined as:
 //
-//    A(0) = seed
-//    A(i) = HMAC_hash(secret, A(i-1))
+//	A(0) = seed
+//	A(i) = HMAC_hash(secret, A(i-1))
 //
 // P_hash can be iterated as many times as necessary to produce the
 // required quantity of data.  For example, if P_SHA256 is being used to
@@ -190,18 +191,16 @@ func ExtendedMasterSecret(preMasterSecret, sessionHash []byte, h HashFunc) ([]by
 
 // MasterSecret generates a TLS 1.2 MasterSecret
 func MasterSecret(preMasterSecret, clientRandom, serverRandom []byte, h HashFunc) ([]byte, error) {
-	seed := append(append([]byte(masterSecretLabel), clientRandom...), serverRandom...)
-	return PHash(preMasterSecret, seed, 48, h)
+	return MasterFromPreMasterSecret(tls.VersionTLS11, false, preMasterSecret, clientRandom, serverRandom), nil
 }
 
 // GenerateEncryptionKeys is the final step TLS 1.2 PRF. Given all state generated so far generates
 // the final keys need for encryption
 func GenerateEncryptionKeys(masterSecret, clientRandom, serverRandom []byte, macLen, keyLen, ivLen int, h HashFunc) (*EncryptionKeys, error) {
-	seed := append(append([]byte(keyExpansionLabel), serverRandom...), clientRandom...)
-	keyMaterial, err := PHash(masterSecret, seed, (2*macLen)+(2*keyLen)+(2*ivLen), h)
-	if err != nil {
-		return nil, err
-	}
+	seed := append(append([]byte(nil), serverRandom...), clientRandom...)
+	n := (2 * macLen) + (2 * keyLen) + (2 * ivLen)
+	keyMaterial := make([]byte, n)
+	prfForVersion(tls.VersionTLS11, false)(keyMaterial, masterSecret, keyExpansionLabel, seed)
 
 	clientMACKey := keyMaterial[:macLen]
 	keyMaterial = keyMaterial[macLen:]
@@ -243,10 +242,14 @@ func prfVerifyData(masterSecret, handshakeBodies []byte, label string, hashFunc 
 
 // VerifyDataClient is caled on the Client Side to either verify or generate the VerifyData message
 func VerifyDataClient(masterSecret, handshakeBodies []byte, h HashFunc) ([]byte, error) {
-	return prfVerifyData(masterSecret, handshakeBodies, verifyDataClientLabel, h)
+	finHash := NewFinishedHash(tls.VersionTLS11, false)
+	_, _ = finHash.Write(handshakeBodies)
+	return finHash.ClientSum(masterSecret), nil
 }
 
 // VerifyDataServer is caled on the Server Side to either verify or generate the VerifyData message
 func VerifyDataServer(masterSecret, handshakeBodies []byte, h HashFunc) ([]byte, error) {
-	return prfVerifyData(masterSecret, handshakeBodies, verifyDataServerLabel, h)
+	finHash := NewFinishedHash(tls.VersionTLS11, false)
+	_, _ = finHash.Write(handshakeBodies)
+	return finHash.ServerSum(masterSecret), nil
 }

@@ -2,7 +2,6 @@ package ciphersuite
 
 import (
 	"crypto/sha1" //nolint: gosec,gci
-	"crypto/sha256"
 	"fmt"
 	"hash"
 	"sync/atomic"
@@ -44,7 +43,7 @@ func (c *TLSEcdheEcdsaWithAes256CbcSha) String() string {
 
 // HashFunc returns the hashing func for this CipherSuite
 func (c *TLSEcdheEcdsaWithAes256CbcSha) HashFunc() func() hash.Hash {
-	return sha256.New
+	return sha1.New
 }
 
 // AuthenticationType controls what authentication method is using during the handshake

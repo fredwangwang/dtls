@@ -43,9 +43,9 @@ func flight3Parse(ctx context.Context, c flightConn, state *State, cache *handsh
 	}
 
 	if h, msgOk := msgs[handshake.TypeServerHello].(*handshake.MessageServerHello); msgOk {
-		if !h.Version.Equal(protocol.Version1_2) {
-			return 0, &alert.Alert{Level: alert.Fatal, Description: alert.ProtocolVersion}, errUnsupportedProtocolVersion
-		}
+		// if !h.Version.Equal(protocol.Version1_2) {
+		// 	return 0, &alert.Alert{Level: alert.Fatal, Description: alert.ProtocolVersion}, errUnsupportedProtocolVersion
+		// }
 		for _, v := range h.Extensions {
 			switch e := v.(type) {
 			case *extension.UseSRTP:
@@ -269,11 +269,11 @@ func flight3Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 		{
 			record: &recordlayer.RecordLayer{
 				Header: recordlayer.Header{
-					Version: protocol.Version1_2,
+					Version: protocol.Version1_0,
 				},
 				Content: &handshake.Handshake{
 					Message: &handshake.MessageClientHello{
-						Version:            protocol.Version1_2,
+						Version:            protocol.Version1_0,
 						SessionID:          state.SessionID,
 						Cookie:             state.cookie,
 						Random:             state.localRandom,
