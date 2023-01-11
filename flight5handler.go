@@ -6,14 +6,14 @@ import (
 	"crypto"
 	"crypto/x509"
 
-	"github.com/pion/dtls/v2/pkg/crypto/hash"
-	"github.com/pion/dtls/v2/pkg/crypto/prf"
-	"github.com/pion/dtls/v2/pkg/crypto/signature"
-	"github.com/pion/dtls/v2/pkg/crypto/signaturehash"
-	"github.com/pion/dtls/v2/pkg/protocol"
-	"github.com/pion/dtls/v2/pkg/protocol/alert"
-	"github.com/pion/dtls/v2/pkg/protocol/handshake"
-	"github.com/pion/dtls/v2/pkg/protocol/recordlayer"
+	"github.com/fredwangwang/dtls/pkg/crypto/hash"
+	"github.com/fredwangwang/dtls/pkg/crypto/prf"
+	"github.com/fredwangwang/dtls/pkg/crypto/signature"
+	"github.com/fredwangwang/dtls/pkg/crypto/signaturehash"
+	"github.com/fredwangwang/dtls/pkg/protocol"
+	"github.com/fredwangwang/dtls/pkg/protocol/alert"
+	"github.com/fredwangwang/dtls/pkg/protocol/handshake"
+	"github.com/fredwangwang/dtls/pkg/protocol/recordlayer"
 )
 
 func flight5Parse(ctx context.Context, c flightConn, state *State, cache *handshakeCache, cfg *handshakeConfig) (flightVal, *alert.Alert, error) {

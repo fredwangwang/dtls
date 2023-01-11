@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pion/dtls/v2/internal/ciphersuite"
-	"github.com/pion/dtls/v2/pkg/protocol/alert"
-	"github.com/pion/dtls/v2/pkg/protocol/handshake"
+	"github.com/fredwangwang/dtls/internal/ciphersuite"
+	"github.com/fredwangwang/dtls/pkg/protocol/alert"
+	"github.com/fredwangwang/dtls/pkg/protocol/handshake"
 	"github.com/pion/transport/test"
 )
 

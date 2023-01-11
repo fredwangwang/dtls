@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pion/dtls/v2/pkg/crypto/elliptic"
-	"github.com/pion/dtls/v2/pkg/protocol"
-	"github.com/pion/dtls/v2/pkg/protocol/extension"
+	"github.com/fredwangwang/dtls/pkg/crypto/elliptic"
+	"github.com/fredwangwang/dtls/pkg/protocol"
+	"github.com/fredwangwang/dtls/pkg/protocol/extension"
 )
 
 func TestHandshakeMessageClientHello(t *testing.T) {

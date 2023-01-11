@@ -4,10 +4,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/pion/dtls/v2/internal/ciphersuite/types"
-	"github.com/pion/dtls/v2/pkg/crypto/elliptic"
-	"github.com/pion/dtls/v2/pkg/crypto/hash"
-	"github.com/pion/dtls/v2/pkg/crypto/signature"
+	"github.com/fredwangwang/dtls/internal/ciphersuite/types"
+	"github.com/fredwangwang/dtls/pkg/crypto/elliptic"
+	"github.com/fredwangwang/dtls/pkg/crypto/hash"
+	"github.com/fredwangwang/dtls/pkg/crypto/signature"
 )
 
 func TestHandshakeMessageServerKeyExchange(t *testing.T) {

@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pion/dtls/v2/internal/net/dpipe"
-	"github.com/pion/dtls/v2/pkg/crypto/selfsign"
+	"github.com/fredwangwang/dtls/internal/net/dpipe"
+	"github.com/fredwangwang/dtls/pkg/crypto/selfsign"
 	"github.com/pion/logging"
 	"github.com/pion/transport/test"
 )

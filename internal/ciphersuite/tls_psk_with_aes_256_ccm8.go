@@ -1,8 +1,8 @@
 package ciphersuite
 
 import (
-	"github.com/pion/dtls/v2/pkg/crypto/ciphersuite"
-	"github.com/pion/dtls/v2/pkg/crypto/clientcertificate"
+	"github.com/fredwangwang/dtls/pkg/crypto/ciphersuite"
+	"github.com/fredwangwang/dtls/pkg/crypto/clientcertificate"
 )
 
 // NewTLSPskWithAes256Ccm8 returns the TLS_PSK_WITH_AES_256_CCM_8 CipherSuite

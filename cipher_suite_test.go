@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pion/dtls/v2/internal/ciphersuite"
-	"github.com/pion/dtls/v2/internal/net/dpipe"
+	"github.com/fredwangwang/dtls/internal/ciphersuite"
+	"github.com/fredwangwang/dtls/internal/net/dpipe"
 	"github.com/pion/transport/test"
 )
 

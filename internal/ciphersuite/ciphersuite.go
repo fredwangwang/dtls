@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/pion/dtls/v2/internal/ciphersuite/types"
-	"github.com/pion/dtls/v2/pkg/protocol"
+	"github.com/fredwangwang/dtls/internal/ciphersuite/types"
+	"github.com/fredwangwang/dtls/pkg/protocol"
 )
 
 var errCipherSuiteNotInit = &protocol.TemporaryError{Err: errors.New("CipherSuite has not been initialized")} //nolint:goerr113
